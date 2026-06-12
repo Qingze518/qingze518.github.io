@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qingze // 思维日志</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0B0E14;
+      --bg-bar: #080A0F;
+      --bg-overlay: rgba(11,14,20,0.97);
+      --cyan: #00F0FF;
+      --purple: #8b5cf6;
+      --green: #22c55e;
+      --text-primary: #dde2ea;
+      --text-body: #c8cdd6;
+      --text-muted: #A0A8B0;
+      --text-dim: #5A6268;
+      --text-nav: #3a4555;
+      --border: rgba(0,240,255,0.07);
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --sans: 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+      --ease: cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    ::selection { background: var(--cyan); color: var(--bg); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { filter: brightness(1.2); }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0,240,255,0.02) 0px, rgba(0,240,255,0.02) 1px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, rgba(0,240,255,0.02) 0px, rgba(0,240,255,0.02) 1px, transparent 1px, transparent 20px);
+      color: var(--text-body);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding-bottom: 56px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px);
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    #glow {
+      position: fixed;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,240,255,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+    }
+
+    /* ── NAV ── */
+    nav {
+      padding: 28px 48px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .nav-line {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.05em;
+      color: var(--text-nav);
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      transition: color 0.2s var(--ease);
+    }
+    .nav-line:hover { color: #8ab0b8; }
+    .nav-line .dollar { color: var(--cyan); }
+    .nav-line .cmd { color: #6a7a8a; transition: color 0.2s var(--ease); }
+    .nav-line:hover .cmd { color: var(--text-body); }
+
+    /* write button in nav */
+    .nav-write {
+      margin-top: 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--cyan);
+      background: rgba(0,240,255,0.06);
+      border: 1px solid rgba(0,240,255,0.2);
+      border-radius: 3px;
+      padding: 6px 14px;
+      cursor: pointer;
+      display: inline-block;
+      transition: background 0.2s var(--ease), border-color 0.2s;
+      user-select: none;
+    }
+    .nav-write:hover { background: rgba(0,240,255,0.12); border-color: rgba(0,240,255,0.4); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 64px 48px 48px;
+      max-width: 860px;
+      position: relative;
+      z-index: 10;
+    }
+    .hero-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: var(--mono);
+      font-size: 40px;
+      font-weight: 300;
+      color: var(--text-primary);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-nav);
+      line-height: 2;
+      max-width: 440px;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── POSTS ── */
+    .posts {
+      padding: 0 48px;
+      border-top: 1px solid rgba(0,240,255,0.06);
+      position: relative;
+      z-index: 10;
+      max-width: 860px;
+    }
+
+    .post {
+      padding: 28px 0 28px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 2rem;
+      position: relative;
+      cursor: pointer;
+    }
+    .post::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--cyan);
+      opacity: 0.15;
+      transition: opacity 0.2s var(--ease);
+    }
+    .post:hover::before { opacity: 0.6; }
+
+    .post-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .thinking .post-tag { color: var(--cyan); }
+    .reading  .post-tag { color: var(--purple); }
+    .ideas    .post-tag { color: var(--green); }
+
+    .post-title-wrap {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      letter-spacing: 0.02em;
+    }
+    .post-caret {
+      font-family: var(--mono);
+      color: var(--cyan);
+      margin-right: 7px;
+      opacity: 0;
+      transition: opacity 0.2s var(--ease);
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .post:hover .post-caret { opacity: 1; }
+
+    .post-body {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.9;
+      margin-bottom: 12px;
+      letter-spacing: 0.03em;
+    }
+    .post-quote {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #6a8090;
+      line-height: 1.8;
+      margin: 10px 0 12px 1rem;
+      padding: 0.5rem 0 0.5rem 1rem;
+      background: rgba(0,240,255,0.03);
+      border-left: 2px solid var(--cyan);
+      border-radius: 4px;
+      letter-spacing: 0.02em;
+    }
+    .post-quote .q-line { display: flex; align-items: baseline; }
+    .post-quote .q-line + .q-line { margin-top: 0.5em; }
+    .post-quote .q-mark { color: var(--cyan); margin-right: 6px; flex-shrink: 0; }
+
+    .posts-loading {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-nav);
+      padding: 32px 0;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 48px 48px 24px;
+      max-width: 860px;
+      position: relative;
+      z-index: 10;
+    }
+    .about-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      margin-bottom: 16px;
+    }
+    .about-body {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 2;
+      letter-spacing: 0.04em;
+      max-width: 440px;
+    }
+
+    /* ── STATUS BAR ── */
+    .statusbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg-bar);
+      border-top: 1px solid var(--border);
+      padding: 10px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      z-index: 100;
+    }
+    .statusbar .sys { color: var(--cyan); margin-right: 6px; }
+    .statusbar .sep { color: #1e2a38; margin: 0 8px; }
+
+    /* ── WRITE MODAL ── */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-overlay);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-bg.open { display: flex; }
+
+    .modal {
+      background: #0f1318;
+      border: 1px solid rgba(0,240,255,0.12);
+      border-radius: 6px;
+      padding: 40px;
+      width: 560px;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .field { margin-bottom: 20px; }
+    .field label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .field select,
+    .field input,
+    .field textarea {
+      width: 100%;
+      background: #080A0F;
+      border: 1px solid rgba(0,240,255,0.1);
+      border-radius: 3px;
+      color: var(--text-body);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      resize: vertical;
+    }
+    .field select:focus,
+    .field input:focus,
+    .field textarea:focus { border-color: rgba(0,240,255,0.4); }
+    .field select { font-family: var(--mono); font-size: 11px; cursor: pointer; }
+
+    .field-hint {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--text-dim);
+      margin-top: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      padding: 8px 20px;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s var(--ease);
+    }
+    .btn-primary {
+      background: rgba(0,240,255,0.1);
+      border-color: rgba(0,240,255,0.3);
+      color: var(--cyan);
+    }
+    .btn-primary:hover { background: rgba(0,240,255,0.18); border-color: var(--cyan); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(255,255,255,0.08);
+      color: var(--text-dim);
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text-muted); }
+
+    .modal-msg {
+      font-family: var(--mono);
+      font-size: 10px;
+      margin-top: 14px;
+      letter-spacing: 0.08em;
+      min-height: 16px;
+    }
+    .modal-msg.ok  { color: var(--green); }
+    .modal-msg.err { color: #f87171; }
+
+    @media (max-width: 600px) {
+      nav, .hero, .posts, #about { padding-left: 20px; padding-right: 20px; }
+      .hero-title { font-size: 28px; }
+      .statusbar { padding: 8px 20px; font-size: 8.5px; }
+      .statusbar .hide-mobile { display: none; }
+      .modal { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="glow"></div>
+
+<nav>
+  <a class="nav-line" href="#posts">
+    <span class="prompt">[qingze@terminal] </span><span class="dollar">$</span> <span class="cmd">cd ~/思考</span>
+  </a>
+  <a class="nav-line" href="#posts">
+    <span class="prompt">[qingze@terminal] </span><span class="dollar">$</span> <span class="cmd">cd ~/读书</span>
+  </a>
+  <a class="nav-line" href="#about">
+    <span class="prompt">[qingze@terminal] </span><span class="dollar">$</span> <span class="cmd">cd ~/想法</span>
+  </a>
+  <span class="nav-write" id="openWrite">+ 写新文章</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">// 思维日志 terminal_mind.log</div>
+  <div class="hero-title">大声<br>思考。</div>
+  <div class="hero-sub">思维碎片 · 阅读记录 · 未完成的想法——不是结论。</div>
+</div>
+
+<div class="posts" id="posts">
+  <div class="posts-loading">// 加载中...</div>
+</div>
+
+<div id="about">
+  <div class="about-label">// about</div>
+  <div class="about-body">
+    qingze. 高中生，在摸索 AI 和自己能做什么。<br>
+    这里是我的思维记录，不保证正确，只保证真实。
+  </div>
+</div>
+
+<div class="statusbar">
+  <div>
+    <span class="sys">[系统]</span>
+    运行时长：<span id="uptime">--</span>
+    <span class="sep hide-mobile">|</span>
+    <span class="hide-mobile">最后同步：<span id="sync">--</span></span>
+  </div>
+  <span id="time">--:--:--</span>
+</div>
+
+<!-- ── WRITE MODAL ── -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-title">// 写新文章</div>
+
+    <div class="field">
+      <label>分类</label>
+      <select id="f-type">
+        <option value="thinking">// 思考</option>
+        <option value="reading">// 读书</option>
+        <option value="ideas">// 想法</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>标题</label>
+      <input type="text" id="f-title" placeholder="一句话标题" />
+    </div>
+
+    <div class="field">
+      <label>正文</label>
+      <textarea id="f-body" rows="4" placeholder="写点什么..."></textarea>
+    </div>
+
+    <div class="field">
+      <label>引用段落（可选）</label>
+      <textarea id="f-quote" rows="3" placeholder="每行一句，自动加 > 符号&#10;留空则不显示引用块"></textarea>
+      <div class="field-hint">// 每行一句话，换行分隔</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="submitBtn">发布</button>
+      <button class="btn btn-ghost" id="cancelBtn">取消</button>
+    </div>
+    <div class="modal-msg" id="modalMsg"></div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://fokhcjmpqbuocweielap.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZva2hjam1wcWJ1b2N3ZWllbGFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDExNjAsImV4cCI6MjA5NjgxNzE2MH0.fv7ohmda_ags3TiEePN_X6QvZa5XMcbr_PJ7nmMaGu8';
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`
+  };
+
+  // ── cursor glow ──
+  const glow = document.getElementById('glow');
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+
+  // ── clock ──
+  function pad(n) { return String(n).padStart(2, '0'); }
+  const startTime = new Date('2026-06-09T06:00:00');
+  function tick() {
+    const now = new Date();
+    document.getElementById('time').textContent =
+      pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    const y = now.getFullYear(), mo = pad(now.getMonth()+1), d = pad(now.getDate());
+    document.getElementById('sync').textContent = y+'-'+mo+'-'+d+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+    const diff = Math.floor((now - startTime) / 1000);
+    document.getElementById('uptime').textContent =
+      Math.floor(diff/86400)+'天 '+Math.floor((diff%86400)/3600)+'时 '+Math.floor((diff%3600)/60)+'分';
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ── render ──
+  const typeLabel = { thinking: '// 思考', reading: '// 读书', ideas: '// 想法' };
+
+  function renderPosts(posts) {
+    const container = document.getElementById('posts');
+    if (!posts.length) {
+      container.innerHTML = '<div class="posts-loading">// 还没有文章，点上方「写新文章」开始吧</div>';
+      return;
+    }
+    container.innerHTML = '';
+    posts.forEach(post => {
+      const el = document.createElement('div');
+      el.className = `post ${post.type}`;
+
+      const quoteHTML = post.quote && post.quote.length
+        ? `<div class="post-quote">${post.quote.map((line, i) =>
+            `<div class="q-line">${i > 0 ? '<span style="display:block;height:0.5em"></span>' : ''}<span class="q-mark">&gt;</span><span>${line}</span></div>`
+          ).join('')}</div>`
+        : '';
+
+      const bodyHTML = post.body
+        ? `<div class="post-body">${post.body}</div>`
+        : '';
+
+      el.innerHTML = `
+        <div class="post-tag">${typeLabel[post.type] || post.type}</div>
+        <div class="post-title-wrap">
+          <span class="post-caret">&gt;</span>
+          <span>${post.title}</span>
+        </div>
+        ${bodyHTML}
+        ${quoteHTML}
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  async function loadPosts() {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/posts?select=*&order=created_at.desc`,
+        { headers }
+      );
+      const data = await res.json();
+      renderPosts(data);
+    } catch (e) {
+      document.getElementById('posts').innerHTML =
+        '<div class="posts-loading">// 加载失败，检查网络连接</div>';
+    }
+  }
+
+  loadPosts();
+
+  // ── modal ──
+  const modalBg  = document.getElementById('modalBg');
+  const submitBtn = document.getElementById('submitBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const modalMsg  = document.getElementById('modalMsg');
+
+  document.getElementById('openWrite').addEventListener('click', () => {
+    modalBg.classList.add('open');
+    modalMsg.textContent = '';
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    modalBg.classList.remove('open');
+  });
+
+  modalBg.addEventListener('click', e => {
+    if (e.target === modalBg) modalBg.classList.remove('open');
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    const title = document.getElementById('f-title').value.trim();
+    const type  = document.getElementById('f-type').value;
+    const body  = document.getElementById('f-body').value.trim();
+    const quoteRaw = document.getElementById('f-quote').value;
+    const quote = quoteRaw.split('\n').map(l => l.trim()).filter(Boolean);
+
+    if (!title) {
+      modalMsg.className = 'modal-msg err';
+      modalMsg.textContent = '// 标题不能为空';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    modalMsg.className = 'modal-msg';
+    modalMsg.textContent = '// 发布中...';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, {
+        method: 'POST',
+        headers: { ...headers, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ type, title, body, quote })
+      });
+
+      if (res.ok) {
+        modalMsg.className = 'modal-msg ok';
+        modalMsg.textContent = '// 发布成功';
+        document.getElementById('f-title').value = '';
+        document.getElementById('f-body').value = '';
+        document.getElementById('f-quote').value = '';
+        await loadPosts();
+        setTimeout(() => modalBg.classList.remove('open'), 800);
+      } else {
+        const err = await res.json();
+        throw new Error(err.message || '未知错误');
+      }
+    } catch (e) {
+      modalMsg.className = 'modal-msg err';
+      modalMsg.textContent = `// 失败：${e.message}`;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
